@@ -15,9 +15,9 @@ public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
 
-    public Page<Task> getAllTasks(Pageable pageable) {
-        return taskRepository.findAll(pageable);
-    }
+//    public Page<Task> getAllTasks(Pageable pageable) {
+//        return taskRepository.findAll(pageable);
+//    }
 
     public List<Task> getAllTasksNoPagination() {
         return taskRepository.findAll();
@@ -48,4 +48,20 @@ public class TaskService {
     public long countIncompleteTasks() {
         return taskRepository.countByCompletedFalse();
     }
+
+    public Page<Task> getFilteredTasks(Pageable pageable, String search, Boolean completed) {
+        if (search == null) search = ""; // Se não houver texto para buscar, defina como vazio
+
+        if (completed == null) {
+            // Se completed for null, retorna todas as tarefas
+            return taskRepository.findByDescriptionContaining(search, pageable);
+        } else if (completed) {
+            // Retorna apenas as tarefas completadas (true)
+            return taskRepository.findByDescriptionContainingAndCompletedTrue(search, pageable);
+        } else {
+            // Retorna apenas as tarefas não completadas (false)
+            return taskRepository.findByDescriptionContainingAndCompletedFalse(search, pageable);
+        }
+    }
+
 }

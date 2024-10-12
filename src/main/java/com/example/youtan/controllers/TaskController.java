@@ -14,26 +14,40 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/tasks")
 public class TaskController {
 
     @Autowired
     private TaskService taskService;
 
+
 //    @GetMapping("/alltasks")
-//    public List<Task> getTasks( @RequestParam(defaultValue = "0") int page,  // Página atual (padrão: 0)
-//                                @RequestParam(defaultValue = "10") int size
-//    ) {
+//    public Map<String, Object> getTasks(@RequestParam(defaultValue = "0") int page,  // Página atual (padrão: 0)
+//                                        @RequestParam(defaultValue = "10") int size) {  // Tamanho da página (padrão: 10)
+//
 //        Pageable pageable = PageRequest.of(page, size);
-//        return taskService.getAllTasks();
+//        Page<Task> taskPage = taskService.getAllTasks(pageable);
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("tasks", taskPage.getContent()); // Lista de tarefas
+//        response.put("currentPage", taskPage.getNumber());
+//        response.put("totalItems", taskPage.getTotalElements()); // Total de tarefas
+//        response.put("totalPages", taskPage.getTotalPages());
+//        response.put("pageSize", taskPage.getSize());
+//
+//        return response;
 //    }
 
     @GetMapping("/alltasks")
-    public Map<String, Object> getTasks(@RequestParam(defaultValue = "0") int page,  // Página atual (padrão: 0)
-                                        @RequestParam(defaultValue = "10") int size) {  // Tamanho da página (padrão: 10)
+    public Map<String, Object> getTasks(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(required = false) String search,  // Filtro por texto livre
+                                        @RequestParam(required = false) Boolean completed // Filtro por status booleano (true/false)
+    ) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Task> taskPage = taskService.getAllTasks(pageable);
+        Page<Task> taskPage = taskService.getFilteredTasks(pageable, search, completed);
 
         Map<String, Object> response = new HashMap<>();
         response.put("tasks", taskPage.getContent()); // Lista de tarefas
@@ -44,6 +58,7 @@ public class TaskController {
 
         return response;
     }
+
 
     @PostMapping("/addtasks")
     public Task createTask(@RequestBody Task task) {
